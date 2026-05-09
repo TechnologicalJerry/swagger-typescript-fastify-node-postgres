@@ -7,6 +7,12 @@ import rateLimit from '@fastify/rate-limit';
 import { env } from './config/env';
 import { errorHandler } from './middlewares/errorHandler';
 
+import dbPlugin from './plugins/db';
+import swaggerPlugin from './plugins/swagger';
+import authPlugin from './plugins/auth';
+import authRoutes from './modules/auth/auth.routes';
+import usersRoutes from './modules/users/users.routes';
+
 export async function buildApp(): Promise<FastifyInstance> {
   const app = fastify({
     logger: true, // Use default Pino logger
@@ -26,6 +32,15 @@ export async function buildApp(): Promise<FastifyInstance> {
     max: 100,
     timeWindow: '1 minute',
   });
+
+  // Custom Plugins
+  await app.register(dbPlugin);
+  await app.register(swaggerPlugin);
+  await app.register(authPlugin);
+
+  // Modules
+  app.register(authRoutes, { prefix: '/api/v1/auth' });
+  app.register(usersRoutes, { prefix: '/api/v1/users' });
 
   // Health check endpoint
   app.get('/api/v1/health', async () => {
