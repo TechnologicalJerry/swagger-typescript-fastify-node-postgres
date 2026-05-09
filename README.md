@@ -1,0 +1,1 @@
+# swagger-typescript-fastify-node-postgres
