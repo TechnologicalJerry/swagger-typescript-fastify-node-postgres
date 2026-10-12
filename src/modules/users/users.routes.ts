@@ -1,94 +1,94 @@
-import { FastifyInstance } from 'fastify';
-import { ZodTypeProvider } from 'fastify-type-provider-zod';
+import { FastifyInstance } from "fastify";
+import { ZodTypeProvider } from "fastify-type-provider-zod";
 import {
   getUsersHandler,
   getUserHandler,
   updateUserHandler,
   deleteUserHandler,
   getMeHandler,
-} from './users.controller';
+} from "./users.controller";
 import {
   userListResponseSchema,
   singleUserResponseSchema,
   updateUserSchema,
   userIdParamSchema,
   genericUserResponseSchema,
-} from './users.schemas';
+} from "./users.schemas";
 
 export default async function usersRoutes(fastify: FastifyInstance) {
   const server = fastify.withTypeProvider<ZodTypeProvider>();
 
   // Admin routes
   server.register(async (adminRoutes) => {
-    adminRoutes.addHook('preValidation', fastify.requireAdmin);
+    adminRoutes.addHook("preValidation", fastify.requireAdmin);
 
     adminRoutes.get(
-      '/',
+      "/",
       {
         schema: {
-          tags: ['Users'],
+          tags: ["Users"],
           security: [{ bearerAuth: [] }],
           response: { 200: userListResponseSchema },
         },
       },
-      getUsersHandler
+      getUsersHandler,
     );
 
     adminRoutes.get(
-      '/:id',
+      "/:id",
       {
         schema: {
-          tags: ['Users'],
+          tags: ["Users"],
           security: [{ bearerAuth: [] }],
           params: userIdParamSchema,
           response: { 200: singleUserResponseSchema },
         },
       },
-      getUserHandler
+      getUserHandler,
     );
 
     adminRoutes.patch(
-      '/:id',
+      "/:id",
       {
         schema: {
-          tags: ['Users'],
+          tags: ["Users"],
           security: [{ bearerAuth: [] }],
           params: userIdParamSchema,
           body: updateUserSchema,
           response: { 200: singleUserResponseSchema },
         },
       },
-      updateUserHandler
+      updateUserHandler,
     );
 
     adminRoutes.delete(
-      '/:id',
+      "/:id",
       {
         schema: {
-          tags: ['Users'],
+          tags: ["Users"],
           security: [{ bearerAuth: [] }],
           params: userIdParamSchema,
           response: { 200: genericUserResponseSchema },
         },
       },
-      deleteUserHandler
+      deleteUserHandler,
     );
   });
 
   // Authenticated user profile routes
   server.register(async (userRoutes) => {
-    userRoutes.addHook('preValidation', fastify.authenticate);
+    userRoutes.addHook("preValidation", fastify.authenticate);
 
     userRoutes.get(
-      '/me',
+      "/me",
       {
         schema: {
-          tags: ['Users'],
+          tags: ["Users"],
           security: [{ bearerAuth: [] }],
           response: { 200: singleUserResponseSchema },
         },
       },
-      getMeHandler
+      getMeHandler,
     );
   });
 }
