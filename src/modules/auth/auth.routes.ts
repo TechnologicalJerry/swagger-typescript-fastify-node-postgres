@@ -1,6 +1,11 @@
-import { FastifyInstance } from 'fastify';
-import { ZodTypeProvider } from 'fastify-type-provider-zod';
-import { registerHandler, loginHandler, refreshHandler, logoutHandler } from './auth.controller';
+import { FastifyInstance } from "fastify";
+import { ZodTypeProvider } from "fastify-type-provider-zod";
+import {
+  registerHandler,
+  loginHandler,
+  refreshHandler,
+  logoutHandler,
+} from "./auth.controller";
 import {
   registerSchema,
   loginSchema,
@@ -8,7 +13,7 @@ import {
   logoutSchema,
   authResponseSchema,
   genericResponseSchema,
-} from './auth.schemas';
+} from "./auth.schemas";
 
 export default async function authRoutes(fastify: FastifyInstance) {
   const server = fastify.withTypeProvider<ZodTypeProvider>();
@@ -17,16 +22,16 @@ export default async function authRoutes(fastify: FastifyInstance) {
   const authRateLimitConfig = {
     rateLimit: {
       max: 10,
-      timeWindow: '1 minute',
+      timeWindow: "1 minute",
     },
   };
 
   server.post(
-    '/register',
+    "/register",
     {
       config: authRateLimitConfig,
       schema: {
-        tags: ['Auth'],
+        tags: ["Auth"],
         body: registerSchema,
         response: {
           201: authResponseSchema,
@@ -34,15 +39,15 @@ export default async function authRoutes(fastify: FastifyInstance) {
         },
       },
     },
-    registerHandler
+    registerHandler,
   );
 
   server.post(
-    '/login',
+    "/login",
     {
       config: authRateLimitConfig,
       schema: {
-        tags: ['Auth'],
+        tags: ["Auth"],
         body: loginSchema,
         response: {
           200: authResponseSchema,
@@ -50,15 +55,15 @@ export default async function authRoutes(fastify: FastifyInstance) {
         },
       },
     },
-    loginHandler
+    loginHandler,
   );
 
   server.post(
-    '/refresh',
+    "/refresh",
     {
       config: authRateLimitConfig,
       schema: {
-        tags: ['Auth'],
+        tags: ["Auth"],
         body: refreshSchema,
         response: {
           200: authResponseSchema,
@@ -66,15 +71,15 @@ export default async function authRoutes(fastify: FastifyInstance) {
         },
       },
     },
-    refreshHandler
+    refreshHandler,
   );
 
   server.post(
-    '/logout',
+    "/logout",
     {
       preValidation: [fastify.authenticate],
       schema: {
-        tags: ['Auth'],
+        tags: ["Auth"],
         security: [{ bearerAuth: [] }],
         body: logoutSchema,
         response: {
@@ -82,6 +87,6 @@ export default async function authRoutes(fastify: FastifyInstance) {
         },
       },
     },
-    logoutHandler
+    logoutHandler,
   );
 }

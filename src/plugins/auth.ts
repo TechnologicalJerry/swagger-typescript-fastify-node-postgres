@@ -1,16 +1,22 @@
-import fp from 'fastify-plugin';
-import fastifyJwt from '@fastify/jwt';
-import { FastifyReply, FastifyRequest } from 'fastify';
-import { env } from '../config/env';
+import fp from "fastify-plugin";
+import fastifyJwt from "@fastify/jwt";
+import { FastifyReply, FastifyRequest } from "fastify";
+import { env } from "../config/env";
 
-declare module 'fastify' {
+declare module "fastify" {
   interface FastifyInstance {
-    authenticate: (request: FastifyRequest, reply: FastifyReply) => Promise<void>;
-    requireAdmin: (request: FastifyRequest, reply: FastifyReply) => Promise<void>;
+    authenticate: (
+      request: FastifyRequest,
+      reply: FastifyReply,
+    ) => Promise<void>;
+    requireAdmin: (
+      request: FastifyRequest,
+      reply: FastifyReply,
+    ) => Promise<void>;
   }
 }
 
-declare module '@fastify/jwt' {
+declare module "@fastify/jwt" {
   interface FastifyJWT {
     payload: { id: number; email: string; role: string };
     user: { id: number; email: string; role: string };
@@ -22,22 +28,35 @@ export default fp(async (fastify) => {
     secret: env.JWT_SECRET,
   });
 
-  fastify.decorate('authenticate', async (request: FastifyRequest, reply: FastifyReply) => {
-    try {
-      await request.jwtVerify();
-    } catch {
-      return reply.status(401).send({ success: false, message: 'Unauthorized' });
-    }
-  });
-
-  fastify.decorate('requireAdmin', async (request: FastifyRequest, reply: FastifyReply) => {
-    try {
-      await request.jwtVerify();
-      if (request.user.role !== 'ADMIN') {
-        return reply.status(403).send({ success: false, message: 'Forbidden: Admin access required' });
+  fastify.decorate(
+    "authenticate",
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      try {
+        await request.jwtVerify();
+      } catch {
+        return reply
+          .status(401)
+          .send({ success: false, message: "Unauthorized" });
       }
-    } catch {
-      return reply.status(401).send({ success: false, message: 'Unauthorized' });
-    }
-  });
+    },
+  );
+
+  fastify.decorate(
+    "requireAdmin",
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      try {
+        await request.jwtVerify();
+        if (request.user.role !== "ADMIN") {
+          return reply.status(403).send({
+            success: false,
+            message: "Forbidden: Admin access required",
+          });
+        }
+      } catch {
+        return reply
+          .status(401)
+          .send({ success: false, message: "Unauthorized" });
+      }
+    },
+  );
 });

@@ -1,10 +1,10 @@
-import crypto from 'crypto';
+import crypto from "crypto";
 
 /**
  * Generate a cryptographically secure random token string.
  */
 export function generateToken(byteLength = 40): string {
-  return crypto.randomBytes(byteLength).toString('hex');
+  return crypto.randomBytes(byteLength).toString("hex");
 }
 
 /**
@@ -12,5 +12,5 @@ export function generateToken(byteLength = 40): string {
  * This allows safe O(1) indexed lookup in the database without storing plaintext tokens.
  */
 export function hashToken(token: string): string {
-  return crypto.createHash('sha256').update(token).digest('hex');
+  return crypto.createHash("sha256").update(token).digest("hex");
 }
