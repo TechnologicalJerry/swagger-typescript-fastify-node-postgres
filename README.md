@@ -49,6 +49,7 @@ src/
 ## 🚦 Getting Started
 
 ### 1. Clone & Install
+
 ```bash
 git clone https://github.com/TechnologicalJerry/swagger-typescript-fastify-node-postgres.git
 cd swagger-typescript-fastify-node-postgres
@@ -56,7 +57,9 @@ npm install
 ```
 
 ### 2. Environment Variables
+
 Create a `.env` file in the root directory (you can copy `.env.example`):
+
 ```env
 NODE_ENV=development
 PORT=3000
@@ -65,31 +68,39 @@ JWT_SECRET="supersecret_jwt_key_change_in_production_123456789"
 ```
 
 ### 3. Run with Docker (Recommended)
+
 You can bring up the entire stack (PostgreSQL + Fastify API) with one command:
+
 ```bash
 docker compose up --build
 ```
-*Note: The docker-compose configuration will automatically run Prisma migrations and start the application.*
+
+_Note: The docker-compose configuration will automatically run Prisma migrations and start the application._
 
 ### 4. Local Development
+
 If you prefer running the app locally without Docker for the API:
 
 Start a local PostgreSQL instance (or use Docker for just the DB):
+
 ```bash
 docker compose up db -d
 ```
 
 Run database migrations:
+
 ```bash
 npm run db:migrate
 ```
 
 Seed the database with an initial Admin user:
+
 ```bash
 npm run db:seed
 ```
 
 Start the development server:
+
 ```bash
 npm run dev
 ```
@@ -99,17 +110,33 @@ npm run dev
 Once the server is running, the interactive Swagger UI is available at:
 👉 **[http://localhost:3000/docs](http://localhost:3000/docs)**
 
-From there, you can view all available endpoints, required payloads, and test the API directly from your browser. 
+From there, you can view all available endpoints, required payloads, and test the API directly from your browser.
 **Note:** To test secured endpoints, first hit the `/api/v1/auth/login` endpoint (using the seeded admin credentials: `admin@example.com` / `admin123`) to get a Bearer token, and enter it using the "Authorize" button in Swagger UI.
 
 ## 📜 Available Scripts
 
-- `npm run dev`: Starts the development server using `tsx`.
+- `npm run dev`: Starts the development server using `tsx watch`.
 - `npm run build`: Compiles TypeScript to JavaScript in the `/dist` folder.
-- `npm start`: Runs the built server.
+- `npm start`: Runs the built production server.
+- `npm test`: Runs the Vitest test suite.
+- `npm run test:watch`: Runs tests in interactive watch mode.
+- `npm run test:coverage`: Generates test coverage report with V8.
 - `npm run lint`: Lints the codebase using ESLint.
+- `npm run format:check`: Validates formatting against Prettier rules.
+- `npm run format`: Automatically fixes code formatting with Prettier.
 - `npm run db:migrate`: Applies Prisma migrations to the database.
 - `npm run db:seed`: Seeds the database with default data.
+
+## 🚀 CI/CD Pipeline
+
+The project includes an enterprise-grade GitHub Actions CI workflow (`.github/workflows/ci.yml`):
+
+- **Code Quality**: ESLint + Prettier formatting validation.
+- **Type Safety**: Prisma Client generation and `tsc` build checks.
+- **Automated Testing**: Runs unit and integration tests against a live PostgreSQL 15 service container.
+- **Coverage**: Generates and uploads V8 coverage reports.
+- **Container Build**: Verifies the production Docker image build with build cache.
+- **Security**: Audits production dependencies for high-severity vulnerabilities.
 
 ## 🛡️ License
 
