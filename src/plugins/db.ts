@@ -1,11 +1,11 @@
-import fp from 'fastify-plugin';
-import { FastifyPluginAsync } from 'fastify';
-import { PrismaClient } from '@prisma/client';
-import { Pool } from 'pg';
-import { PrismaPg } from '@prisma/adapter-pg';
-import { env } from '../config/env';
+import fp from "fastify-plugin";
+import { FastifyPluginAsync } from "fastify";
+import { PrismaClient } from "@prisma/client";
+import { Pool } from "pg";
+import { PrismaPg } from "@prisma/adapter-pg";
+import { env } from "../config/env";
 
-declare module 'fastify' {
+declare module "fastify" {
   interface FastifyInstance {
     prisma: PrismaClient;
     pgPool: Pool;
@@ -26,19 +26,19 @@ const dbPlugin: FastifyPluginAsync = async (fastify) => {
 
   await prisma.$connect();
 
-  fastify.decorate('prisma', prisma);
-  fastify.decorate('pgPool', pool);
+  fastify.decorate("prisma", prisma);
+  fastify.decorate("pgPool", pool);
 
-  fastify.addHook('onClose', async (server) => {
+  fastify.addHook("onClose", async (server) => {
     try {
       await server.prisma.$disconnect();
     } catch (err) {
-      server.log.error(err, 'Error disconnecting Prisma');
+      server.log.error(err, "Error disconnecting Prisma");
     }
     try {
       await pool.end();
     } catch (err) {
-      server.log.error(err, 'Error closing PG connection pool');
+      server.log.error(err, "Error closing PG connection pool");
     }
   });
 };
