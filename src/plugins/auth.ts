@@ -25,8 +25,8 @@ export default fp(async (fastify) => {
   fastify.decorate('authenticate', async (request: FastifyRequest, reply: FastifyReply) => {
     try {
       await request.jwtVerify();
-    } catch (err) {
-      reply.status(401).send({ success: false, message: 'Unauthorized' });
+    } catch {
+      return reply.status(401).send({ success: false, message: 'Unauthorized' });
     }
   });
 
@@ -34,10 +34,10 @@ export default fp(async (fastify) => {
     try {
       await request.jwtVerify();
       if (request.user.role !== 'ADMIN') {
-        reply.status(403).send({ success: false, message: 'Forbidden: Admin access required' });
+        return reply.status(403).send({ success: false, message: 'Forbidden: Admin access required' });
       }
-    } catch (err) {
-      reply.status(401).send({ success: false, message: 'Unauthorized' });
+    } catch {
+      return reply.status(401).send({ success: false, message: 'Unauthorized' });
     }
   });
 });
