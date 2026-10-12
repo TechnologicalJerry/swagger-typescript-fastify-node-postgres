@@ -1,23 +1,30 @@
-import fastify, { FastifyInstance } from 'fastify';
-import { serializerCompiler, validatorCompiler } from 'fastify-type-provider-zod';
-import cors from '@fastify/cors';
-import helmet from '@fastify/helmet';
-import rateLimit from '@fastify/rate-limit';
+import fastify, { FastifyInstance } from "fastify";
+import {
+  serializerCompiler,
+  validatorCompiler,
+} from "fastify-type-provider-zod";
+import cors from "@fastify/cors";
+import helmet from "@fastify/helmet";
+import rateLimit from "@fastify/rate-limit";
 
-import { env } from './config/env';
-import { errorHandler } from './middlewares/errorHandler';
+import { env } from "./config/env";
+import { errorHandler } from "./middlewares/errorHandler";
 
-import dbPlugin from './plugins/db';
-import swaggerPlugin from './plugins/swagger';
-import authPlugin from './plugins/auth';
-import authRoutes from './modules/auth/auth.routes';
-import usersRoutes from './modules/users/users.routes';
+import dbPlugin from "./plugins/db";
+import swaggerPlugin from "./plugins/swagger";
+import authPlugin from "./plugins/auth";
+import authRoutes from "./modules/auth/auth.routes";
+import usersRoutes from "./modules/users/users.routes";
 
 export async function buildApp(): Promise<FastifyInstance> {
   const app = fastify({
     logger: {
-      level: env.NODE_ENV === 'production' ? 'info' : 'debug',
-      redact: ['req.headers.authorization', 'req.body.password', 'req.body.refreshToken'],
+      level: env.NODE_ENV === "production" ? "info" : "debug",
+      redact: [
+        "req.headers.authorization",
+        "req.body.password",
+        "req.body.refreshToken",
+      ],
     },
   });
 
@@ -32,17 +39,17 @@ export async function buildApp(): Promise<FastifyInstance> {
   await app.register(helmet, { global: true });
 
   const corsOrigin =
-    env.CORS_ORIGIN === '*'
+    env.CORS_ORIGIN === "*"
       ? true
-      : env.CORS_ORIGIN.includes(',')
-        ? env.CORS_ORIGIN.split(',').map((o) => o.trim())
+      : env.CORS_ORIGIN.includes(",")
+        ? env.CORS_ORIGIN.split(",").map((o) => o.trim())
         : env.CORS_ORIGIN;
 
   await app.register(cors, { origin: corsOrigin });
 
   await app.register(rateLimit, {
     max: 100,
-    timeWindow: '1 minute',
+    timeWindow: "1 minute",
   });
 
   // Custom Plugins
@@ -51,23 +58,23 @@ export async function buildApp(): Promise<FastifyInstance> {
   await app.register(authPlugin);
 
   // Modules
-  app.register(authRoutes, { prefix: '/api/v1/auth' });
-  app.register(usersRoutes, { prefix: '/api/v1/users' });
+  app.register(authRoutes, { prefix: "/api/v1/auth" });
+  app.register(usersRoutes, { prefix: "/api/v1/users" });
 
   // Deep health check endpoint
-  app.get('/api/v1/health', async (request, reply) => {
+  app.get("/api/v1/health", async (request, reply) => {
     try {
       await app.prisma.$queryRaw`SELECT 1`;
       return reply.send({
-        status: 'ok',
-        database: 'connected',
+        status: "ok",
+        database: "connected",
         timestamp: new Date().toISOString(),
       });
     } catch (err) {
-      request.log.error(err, 'Health check failed: database unreachable');
+      request.log.error(err, "Health check failed: database unreachable");
       return reply.status(503).send({
-        status: 'error',
-        database: 'disconnected',
+        status: "error",
+        database: "disconnected",
         timestamp: new Date().toISOString(),
       });
     }

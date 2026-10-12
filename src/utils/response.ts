@@ -6,7 +6,12 @@ export interface ApiResponse<T = any> {
   error?: any;
 }
 
-export function formatResponse<T>(success: boolean, message: string, data?: T, meta?: any): ApiResponse<T> {
+export function formatResponse<T>(
+  success: boolean,
+  message: string,
+  data?: T,
+  meta?: any,
+): ApiResponse<T> {
   return {
     success,
     message,

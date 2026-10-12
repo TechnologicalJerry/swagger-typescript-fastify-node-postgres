@@ -1,12 +1,12 @@
-import fp from 'fastify-plugin';
-import swagger from '@fastify/swagger';
-import swaggerUi from '@fastify/swagger-ui';
-import { jsonSchemaTransform } from 'fastify-type-provider-zod';
-import { env } from '../config/env';
+import fp from "fastify-plugin";
+import swagger from "@fastify/swagger";
+import swaggerUi from "@fastify/swagger-ui";
+import { jsonSchemaTransform } from "fastify-type-provider-zod";
+import { env } from "../config/env";
 
 export default fp(async (fastify) => {
   if (!env.SWAGGER_ENABLED) {
-    fastify.log.info('Swagger documentation is disabled');
+    fastify.log.info("Swagger documentation is disabled");
     return;
   }
 
@@ -15,22 +15,25 @@ export default fp(async (fastify) => {
   await fastify.register(swagger, {
     openapi: {
       info: {
-        title: 'Fastify API',
-        description: 'Production ready backend API',
-        version: '1.0.0',
+        title: "Fastify API",
+        description: "Production ready backend API",
+        version: "1.0.0",
       },
       servers: [
         {
           url: serverUrl,
-          description: env.NODE_ENV === 'production' ? 'Production server' : 'Development server',
+          description:
+            env.NODE_ENV === "production"
+              ? "Production server"
+              : "Development server",
         },
       ],
       components: {
         securitySchemes: {
           bearerAuth: {
-            type: 'http',
-            scheme: 'bearer',
-            bearerFormat: 'JWT',
+            type: "http",
+            scheme: "bearer",
+            bearerFormat: "JWT",
           },
         },
       },
@@ -39,6 +42,6 @@ export default fp(async (fastify) => {
   });
 
   await fastify.register(swaggerUi, {
-    routePrefix: '/docs',
+    routePrefix: "/docs",
   });
 });
