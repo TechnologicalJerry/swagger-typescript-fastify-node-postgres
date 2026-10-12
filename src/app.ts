@@ -15,7 +15,10 @@ import usersRoutes from './modules/users/users.routes';
 
 export async function buildApp(): Promise<FastifyInstance> {
   const app = fastify({
-    logger: true, // Use default Pino logger
+    logger: {
+      level: env.NODE_ENV === 'production' ? 'info' : 'debug',
+      redact: ['req.headers.authorization', 'req.body.password', 'req.body.refreshToken'],
+    },
   });
 
   // Add Zod type provider
@@ -27,7 +30,16 @@ export async function buildApp(): Promise<FastifyInstance> {
 
   // Security Middlewares
   await app.register(helmet, { global: true });
-  await app.register(cors, { origin: true });
+
+  const corsOrigin =
+    env.CORS_ORIGIN === '*'
+      ? true
+      : env.CORS_ORIGIN.includes(',')
+        ? env.CORS_ORIGIN.split(',').map((o) => o.trim())
+        : env.CORS_ORIGIN;
+
+  await app.register(cors, { origin: corsOrigin });
+
   await app.register(rateLimit, {
     max: 100,
     timeWindow: '1 minute',
@@ -42,9 +54,23 @@ export async function buildApp(): Promise<FastifyInstance> {
   app.register(authRoutes, { prefix: '/api/v1/auth' });
   app.register(usersRoutes, { prefix: '/api/v1/users' });
 
-  // Health check endpoint
-  app.get('/api/v1/health', async () => {
-    return { status: 'ok', timestamp: new Date().toISOString() };
+  // Deep health check endpoint
+  app.get('/api/v1/health', async (request, reply) => {
+    try {
+      await app.prisma.$queryRaw`SELECT 1`;
+      return reply.send({
+        status: 'ok',
+        database: 'connected',
+        timestamp: new Date().toISOString(),
+      });
+    } catch (err) {
+      request.log.error(err, 'Health check failed: database unreachable');
+      return reply.status(503).send({
+        status: 'error',
+        database: 'disconnected',
+        timestamp: new Date().toISOString(),
+      });
+    }
   });
 
   return app;
