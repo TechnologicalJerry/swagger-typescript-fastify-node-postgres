@@ -97,7 +97,7 @@ jobs:
         run: npm ci
 
       - name: Push Prisma Schema to Test Database
-        run: npx prisma db push --skip-generate
+        run: npx prisma db push --accept-data-loss
 
       - name: Run Tests with Coverage
         run: npm run test:coverage
