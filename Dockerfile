@@ -1,25 +1,35 @@
-FROM node:lts-alpine AS builder
+FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Install dependencies and Prisma schema
+# Install dependencies and copy Prisma schema
 COPY package*.json ./
 COPY prisma ./prisma/
 RUN npm ci
+
+# Generate Prisma client
+RUN npx prisma generate
 
 # Copy source and build
 COPY . .
 RUN npm run build
 
-FROM node:lts-alpine
+FROM node:20-alpine AS runner
 
 WORKDIR /app
 
-# Copy from builder
-COPY --from=builder /app/node_modules ./node_modules
+ENV NODE_ENV=production
+
+# Install production dependencies only
+COPY package*.json ./
+COPY prisma ./prisma/
+RUN npm ci --omit=dev && npx prisma generate
+
+# Copy compiled JavaScript from builder
 COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/package.json ./
-COPY --from=builder /app/prisma ./prisma
+
+# Use non-root user
+USER node
 
 # Expose port and start
 EXPOSE 3000
